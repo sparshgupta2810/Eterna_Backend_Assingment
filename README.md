@@ -1,86 +1,73 @@
-# 🚀 Eterna Order Execution Engine  
-Backend Assignment — **Market Order Execution System**
+# React + TypeScript + Vite
 
----
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🏗 Tech Stack
+Currently, two official plugins are available:
 
-- **Runtime:** Node.js + TypeScript  
-- **API Framework:** Fastify  
-- **WebSockets:** @fastify/websocket  
-- **Queue System:** BullMQ  
-- **State Management:** Redis (Pub/Sub + Queue Storage)  
-- **Database:** PostgreSQL  
-- **Architecture:** Event-driven, Queue-based Execution Pipeline  
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
----
+## React Compiler
 
-## 🎯 Core Design Decisions
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### ✅ **Selected Order Type: MARKET ORDER**
+## Expanding the ESLint configuration
 
-This assignment focuses exclusively on **Market Orders**.
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-**Why Market Orders?**
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-Market orders represent the core execution path of any trading engine because they require:
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-- Low latency  
-- Fast routing  
-- Predictable settlement  
-- Slippage awareness  
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
 
-Building the Market Order engine first creates the foundation for more advanced order types.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
----
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-## 🔧 Extensibility for Future Order Types
-
-### **1️⃣ Limit Orders**
-
-Add a standalone **Price Watcher Service** using:
-
-- Redis Keyspace notifications **or**  
-- Cron-based polling  
-
-When: `CurrentPrice <= LimitPrice`  
-→ Trigger the existing `POST /api/orders/execute`  
-→ Limit order converts into a Market Order for execution  
-
-No changes required in the existing engine.
-
----
-
-### **2️⃣ Sniper Orders**
-
-Add a **Mempool Listener Service**:
-
-- Subscribes to chain events (e.g., `LiquidityPoolCreated`)  
-- Detects token launches instantly  
-- Pushes a **high-priority** job to BullMQ  
-
-Uses the same execution pipeline.
-
----
-
-## 🧩 Architecture & Processing Flow
-
----
-
-## 📡 2. Real-time Updates (WebSocket)
-
-### **Endpoint**
-ws://localhost:3000/ws/orders/:orderId
-
-markdown
-Copy code
-
-### **Flow**
-1. Client connects using `orderId`
-2. Backend subscribes to Redis channel:
-order:<orderId>
-
-bash
-Copy code
-3. Worker publishes status → Redis → WebSocket client
-
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
